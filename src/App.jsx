@@ -217,6 +217,48 @@ export default function App() {
     URL.revokeObjectURL(url);
   }
 
+  function copyBackupToClipboard() {
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      entries,
+    };
+
+    const text = JSON.stringify(payload, null, 2);
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => alert("Backup copied to clipboard."))
+      .catch(() => alert("Clipboard copy failed."));
+  }
+
+  function importFromText(text) {
+    try {
+      const parsed = JSON.parse(text);
+
+      const importedEntries = Array.isArray(parsed)
+        ? parsed
+        : Array.isArray(parsed?.entries)
+        ? parsed.entries
+        : null;
+
+      if (!importedEntries) {
+        alert("Import failed: invalid format.");
+        return;
+      }
+
+      const byId = new Map(entries.map((e) => [e.id, e]));
+      for (const en of importedEntries) {
+        if (en && en.id) byId.set(en.id, en);
+      }
+
+      setEntries(Array.from(byId.values()));
+      alert(`Imported ${importedEntries.length} entries.`);
+    } catch (err) {
+      alert("Import failed: invalid JSON.");
+    }
+  }
+
   async function importJson(e) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -272,6 +314,30 @@ export default function App() {
             <h1>Echo-3 Sports Archive</h1>
             <p className="sub">Stats first. A little sass second.</p>
           </div>
+
+          <div className="panel" style={{ marginTop: 16 }}>
+            <div className="sectionTitle">Import from Text</div>
+
+            <textarea
+              className="input"
+              rows={6}
+              placeholder="Paste backup JSON here..."
+              id="pasteArea"
+            />
+
+            <div style={{ marginTop: 10 }}>
+              <button
+                className="button"
+                onClick={() => {
+                  const text = document.getElementById("pasteArea").value;
+                  importFromText(text);
+                }}
+                style={{ width: "auto" }}
+              >
+                Import From Text
+              </button>
+            </div>
+          </div>
         </div>
 
         <div
@@ -309,6 +375,14 @@ export default function App() {
               style={{ display: "none" }}
             />
           </label>
+
+          <button
+            className="button secondary"
+            onClick={copyBackupToClipboard}
+            style={{ width: "auto" }}
+          >
+            Copy Backup
+          </button>
         </div>
       </div>
 
