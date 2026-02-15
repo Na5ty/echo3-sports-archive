@@ -4,6 +4,51 @@ import logo from "./assets/fuck-ill-intend.jpeg";
 
 const STORAGE_KEY = "echo3_sports_archive_v1";
 
+const TAGLINES = [
+  "Discipline disguised as chaos.",
+  "Engines don’t lie.",
+  "Run. Log. Repeat.",
+  "No witnesses. Only data.",
+  "Victory is recovery after the spike.",
+  "Dirty fuel. Clean output.",
+  "You don’t stop. You adapt.",
+  "A little obstacle. A little proof.",
+  "Pain is feedback.",
+  "Silence the doubt. Log the proof.",
+  "Breath heavy. Mind clear.",
+  "Data doesn’t gaslight you.",
+  "You survived worse.",
+  "Consistency beats emotion.",
+  "Weak moments. Strong pattern.",
+  "The hill doesn’t care. Neither do you.",
+  "Heart rate rising. Ego lowering.",
+  "Train like no one is watching. Because no one is.",
+  "Systems don’t negotiate.",
+  "Stress creates capacity.",
+  "Fuel the furnace.",
+  "Pressure builds engines.",
+  "Output > excuses.",
+  "Recovery is strategy.",
+  "Numbers reveal truth.",
+  "Calm is earned.",
+  "Work the circuit.",
+  "Endurance is identity.",
+  "Chaos is just untrained energy.",
+  "The body keeps receipts.",
+  "Adapt or stall.",
+  "You don’t need applause.",
+  "The archive remembers.",
+  "Proof over paranoia.",
+  "Suffer quietly. Improve loudly.",
+  "One more breath.",
+  "The spike is the point.",
+  "This is what discipline feels like.",
+];
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 function todayISO() {
   const d = new Date();
   const yyyy = d.getFullYear();
@@ -58,6 +103,41 @@ export default function App() {
 
   // EDIT MODE
   const [editingId, setEditingId] = useState(null);
+
+  const [tagline, setTagline] = useState(() => pickRandom(TAGLINES));
+
+  useEffect(() => {
+    const ROTATE_MS = 9000;
+    if (!ROTATE_MS) return;
+
+    const id = setInterval(() => {
+      if (editingId) return;
+
+      setTagline((prev) => {
+        let next = pickRandom(TAGLINES);
+        let guard = 0;
+        while (next === prev && guard < 10) {
+          next = pickRandom(TAGLINES);
+          guard++;
+        }
+        return next;
+      });
+    }, ROTATE_MS);
+
+    return () => clearInterval(id);
+  }, [editingId]);
+
+  function nextTagline() {
+    setTagline((prev) => {
+      let next = pickRandom(TAGLINES);
+      let guard = 0;
+      while (next === prev && guard < 10) {
+        next = pickRandom(TAGLINES);
+        guard++;
+      }
+      return next;
+    });
+  }
 
   // Form state
   const [date, setDate] = useState(todayISO());
@@ -397,7 +477,13 @@ export default function App() {
           <img className="logo" src={logo} alt="FUCK ILL INTEND" />
           <div>
             <h1>Echo-3 Sports Archive</h1>
-            <p className="sub">Stats first. A little sass second.</p>
+            <p
+              className="sub"
+              onClick={nextTagline}
+              style={{ cursor: "pointer" }}
+            >
+              {tagline}
+            </p>
           </div>
         </div>
 
