@@ -252,7 +252,11 @@ export default function App() {
         if (en && en.id) byId.set(en.id, en);
       }
 
-      setEntries(Array.from(byId.values()));
+      setEntries(
+        Array.from(byId.values()).sort((a, b) =>
+          (b.createdAt || "").localeCompare(a.createdAt || "")
+        )
+      );
       alert(`Imported ${importedEntries.length} entries.`);
     } catch (err) {
       alert("Import failed: invalid JSON.");
@@ -314,30 +318,6 @@ export default function App() {
             <h1>Echo-3 Sports Archive</h1>
             <p className="sub">Stats first. A little sass second.</p>
           </div>
-
-          <div className="panel" style={{ marginTop: 16 }}>
-            <div className="sectionTitle">Import from Text</div>
-
-            <textarea
-              className="input"
-              rows={6}
-              placeholder="Paste backup JSON here..."
-              id="pasteArea"
-            />
-
-            <div style={{ marginTop: 10 }}>
-              <button
-                className="button"
-                onClick={() => {
-                  const text = document.getElementById("pasteArea").value;
-                  importFromText(text);
-                }}
-                style={{ width: "auto" }}
-              >
-                Import From Text
-              </button>
-            </div>
-          </div>
         </div>
 
         <div
@@ -384,6 +364,48 @@ export default function App() {
             Copy Backup
           </button>
         </div>
+      </div>
+
+      <div className="panel" style={{ marginTop: 16 }}>
+        <div className="sectionTitle">Import from Text</div>
+
+        <textarea
+          className="input"
+          rows={6}
+          placeholder="Paste backup JSON here..."
+          id="pasteArea"
+        />
+
+        <div
+          style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap" }}
+        >
+          <button
+            className="button"
+            onClick={() => {
+              const text = document.getElementById("pasteArea").value;
+              importFromText(text);
+            }}
+            style={{ width: "auto" }}
+          >
+            Import From Text
+          </button>
+
+          <button
+            className="button secondary"
+            onClick={() => {
+              const el = document.getElementById("pasteArea");
+              if (el) el.value = "";
+            }}
+            style={{ width: "auto" }}
+          >
+            Clear
+          </button>
+        </div>
+
+        <p className="small" style={{ marginTop: 10 }}>
+          Tip: Copy Backup → paste into WhatsApp/Notes → paste here on the other
+          device.
+        </p>
       </div>
 
       {editingId ? (
