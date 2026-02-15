@@ -198,6 +198,11 @@ export default function App() {
     if (editingId === id) clearChart();
   }
 
+  function formatDate(isoDate) {
+    if (!isoDate) return "";
+    return new Date(isoDate).toLocaleDateString("de-DE");
+  }
+
   function exportJson() {
     const payload = {
       version: 1,
@@ -579,8 +584,8 @@ export default function App() {
               <div key={e.id} className="card">
                 <div style={{ flex: 1 }}>
                   <div className="meta">
-                    {e.date} — {String(e.type || "").toUpperCase()} —{" "}
-                    {e.duration || "—"}
+                    {formatDate(e.date)} — {String(e.type || "").toUpperCase()}{" "}
+                    — {e.duration || "—"}
                   </div>
 
                   <div className="statsline">
