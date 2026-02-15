@@ -569,77 +569,83 @@ export default function App() {
         <p>No entries yet. Add your first ritual.</p>
       ) : (
         <div style={{ display: "grid", gap: 10 }}>
-          {entries.map((e) => (
-            <div key={e.id} className="card">
-              <div style={{ flex: 1 }}>
-                <div className="meta">
-                  {e.date} — {String(e.type || "").toUpperCase()} —{" "}
-                  {e.duration || "—"}
-                </div>
+          {[...entries]
+            .sort((a, b) => {
+              const byDate = (b.date || "").localeCompare(a.date || "");
+              if (byDate !== 0) return byDate;
+              return (b.createdAt || "").localeCompare(a.createdAt || "");
+            })
+            .map((e) => (
+              <div key={e.id} className="card">
+                <div style={{ flex: 1 }}>
+                  <div className="meta">
+                    {e.date} — {String(e.type || "").toUpperCase()} —{" "}
+                    {e.duration || "—"}
+                  </div>
 
-                <div className="statsline">
-                  {e.distanceKm != null ? <>🏁 {e.distanceKm} km</> : null}
-                  {e.calories != null ? (
-                    <>
-                      {"  "}🔥 {e.calories} kcal
-                    </>
-                  ) : null}
-                  {e.avgHr != null ? (
-                    <>
-                      {"  "}❤️ {e.avgHr} avg
-                    </>
-                  ) : null}
-                  {e.maxHr != null ? (
-                    <>
-                      {"  "}💥 {e.maxHr} max
-                    </>
-                  ) : null}
-                </div>
+                  <div className="statsline">
+                    {e.distanceKm != null ? <>🏁 {e.distanceKm} km</> : null}
+                    {e.calories != null ? (
+                      <>
+                        {"  "}🔥 {e.calories} kcal
+                      </>
+                    ) : null}
+                    {e.avgHr != null ? (
+                      <>
+                        {"  "}❤️ {e.avgHr} avg
+                      </>
+                    ) : null}
+                    {e.maxHr != null ? (
+                      <>
+                        {"  "}💥 {e.maxHr} max
+                      </>
+                    ) : null}
+                  </div>
 
-                {e.note ? <div className="note">{e.note}</div> : null}
+                  {e.note ? <div className="note">{e.note}</div> : null}
 
-                {e.chartImage ? (
-                  <div>
-                    <img
-                      className="chart"
-                      src={e.chartImage}
-                      alt="Saved chart"
-                    />
-                    <div style={{ marginTop: 10 }}>
-                      <button
-                        className="button secondary"
-                        onClick={() => removeChartFromEntry(e.id)}
-                        style={{ width: "auto" }}
-                      >
-                        Remove chart
-                      </button>
+                  {e.chartImage ? (
+                    <div>
+                      <img
+                        className="chart"
+                        src={e.chartImage}
+                        alt="Saved chart"
+                      />
+                      <div style={{ marginTop: 10 }}>
+                        <button
+                          className="button secondary"
+                          onClick={() => removeChartFromEntry(e.id)}
+                          style={{ width: "auto" }}
+                        >
+                          Remove chart
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ) : null}
+                  ) : null}
 
-                {e.updatedAt ? (
-                  <div className="small">
-                    Edited: {new Date(e.updatedAt).toLocaleString()}
-                  </div>
-                ) : null}
-              </div>
+                  {e.updatedAt ? (
+                    <div className="small">
+                      Edited: {new Date(e.updatedAt).toLocaleString()}
+                    </div>
+                  ) : null}
+                </div>
 
-              <div className="actions">
-                <button
-                  className="button secondary"
-                  onClick={() => startEdit(e)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="button secondary"
-                  onClick={() => removeEntry(e.id)}
-                >
-                  Delete
-                </button>
+                <div className="actions">
+                  <button
+                    className="button secondary"
+                    onClick={() => startEdit(e)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="button secondary"
+                    onClick={() => removeEntry(e.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
 
