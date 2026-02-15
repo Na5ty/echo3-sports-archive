@@ -7,6 +7,8 @@
   --muted: rgba(255, 255, 255, 0.65);
   --accent: #a855f7; /* purple */
   --accent2: #22c55e; /* green */
+  --e3-green: rgba(120, 255, 160, 0.22);
+  --e3-purple: rgba(170, 110, 255, 0.22);
 }
 
 * {
@@ -51,8 +53,8 @@ body {
 }
 
 .logo {
-  width: 84px;
-  height: 84px;
+  width: 100px;
+  height: 100px;
   object-fit: cover;
   border-radius: 16px;
   border: 1px solid var(--border);
@@ -145,14 +147,43 @@ h1 {
   color: rgba(255, 255, 255, 0.9);
 }
 
+/* Your log entry card */
 .card {
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+/* Subtle “aura” glow */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
   border-radius: 18px;
-  padding: 14px;
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
+  background: radial-gradient(
+      700px 220px at 18% 10%,
+      var(--e3-purple),
+      transparent 60%
+    ),
+    radial-gradient(700px 220px at 82% 10%, var(--e3-green), transparent 60%);
+  opacity: 0.55;
+  filter: blur(14px);
+  pointer-events: none;
+}
+
+/* Keep content above the glow layer */
+.card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Tiny lift on hover (optional) */
+.card:hover {
+  transform: translateY(-1px);
+  transition: transform 140ms ease;
 }
 
 .meta {

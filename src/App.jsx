@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import logo from "./assets/fuck-ill-intend.jpeg";
 
@@ -222,6 +222,82 @@ export default function App() {
     URL.revokeObjectURL(url);
   }
 
+  function isoDateToDate(iso) {
+    // expects "YYYY-MM-DD"
+    const [y, m, d] = (iso || "").split("-").map(Number);
+    if (!y || !m || !d) return null;
+    return new Date(y, m - 1, d);
+  }
+
+  function startOfISOWeek(date) {
+    // Monday as start
+    const d = new Date(date);
+    const day = d.getDay(); // 0 Sun .. 6 Sat
+    const diff = (day === 0 ? -6 : 1) - day; // shift to Monday
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  function dateToISO(d) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  // DD.MM.YYYY display
+  function formatDE(iso) {
+    const d = isoDateToDate(iso);
+    if (!d) return iso || "—";
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    return `${dd}.${mm}.${yyyy}`;
+  }
+
+  function isSameISOWeek(isoA, isoB) {
+    const a = isoDateToDate(isoA);
+    const b = isoDateToDate(isoB);
+    if (!a || !b) return false;
+    return dateToISO(startOfISOWeek(a)) === dateToISO(startOfISOWeek(b));
+  }
+
+  function summarize(entries) {
+    const sessions = entries.length;
+
+    const km = entries.reduce((sum, e) => sum + (Number(e.distanceKm) || 0), 0);
+    const kcal = entries.reduce((sum, e) => sum + (Number(e.calories) || 0), 0);
+
+    // avg HR: average of provided avgHr values (not weighted by duration)
+    const avgHrValues = entries
+      .map((e) => Number(e.avgHr))
+      .filter((n) => Number.isFinite(n));
+    const avgHr = avgHrValues.length
+      ? Math.round(avgHrValues.reduce((a, b) => a + b, 0) / avgHrValues.length)
+      : null;
+
+    const maxHrValues = entries
+      .map((e) => Number(e.maxHr))
+      .filter((n) => Number.isFinite(n));
+    const maxHr = maxHrValues.length ? Math.max(...maxHrValues) : null;
+
+    return {
+      sessions,
+      km: km ? Number(km.toFixed(2)) : 0,
+      kcal: kcal ? Math.round(kcal) : 0,
+      avgHr,
+      maxHr,
+    };
+  }
+
+  const thisWeekEntries = useMemo(() => {
+    const today = todayISO();
+    return entries.filter((e) => e.date && isSameISOWeek(e.date, today));
+  }, [entries]);
+
+  const thisWeek = useMemo(() => summarize(thisWeekEntries), [thisWeekEntries]);
+
   function copyBackupToClipboard() {
     const payload = {
       version: 1,
@@ -368,6 +444,23 @@ export default function App() {
           >
             Copy Backup
           </button>
+        </div>
+      </div>
+
+      <div className="panel" style={{ marginTop: 16 }}>
+        <div className="sectionTitle">This Week</div>
+
+        <div className="statsline" style={{ marginTop: 8 }}>
+          🗓️ {thisWeek.sessions} sessions
+          {"  "}🏁 {thisWeek.km} km
+          {"  "}🔥 {thisWeek.kcal} kcal
+          {"  "}❤️ {thisWeek.avgHr != null ? `${thisWeek.avgHr} avg` : "— avg"}
+          {"  "}💥 {thisWeek.maxHr != null ? `${thisWeek.maxHr} max` : "— max"}
+        </div>
+
+        <div className="small" style={{ marginTop: 8, opacity: 0.8 }}>
+          Sorted by entry date (not when you typed it). The archive judges by
+          truth, not by timestamps.
         </div>
       </div>
 
